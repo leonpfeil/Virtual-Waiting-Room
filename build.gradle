@@ -14,6 +14,9 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     // https://mvnrepository.com/artifact/org.zeromq/jeromq
     implementation group: 'org.zeromq', name: 'jeromq', version: '0.5.3'
+    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.10.1'
+
 }
 
 test {

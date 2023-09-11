@@ -9,7 +9,7 @@ import com.google.gson.Gson;
 public class ClientMain {
     public static void main(String[] args)
     {
-        try (ZContext context = new ZContext()) {
+        ZContext context = new ZContext();
             //  Socket to talk to server
             /*System.out.println("Collecting updates from weather server");
             ZMQ.Socket subscriber = context.createSocket(SocketType.SUB);
@@ -30,12 +30,18 @@ public class ClientMain {
 
             String json = gson.toJson(newMessage);
             System.out.println(json);
+
+            QueueItem QI = new QueueItem("TestQI","ID");
+            System.out.println(gson.toJson(QI));
+
+
+
             socket.send(json.getBytes(ZMQ.CHARSET));
 
             System.out.println(socket.recvStr());
 
 
 
-        }
+
     }
 }

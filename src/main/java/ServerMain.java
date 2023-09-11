@@ -1,20 +1,25 @@
+import com.google.gson.Gson;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import org.apache.commons.collections4.*;
+
 
 public class ServerMain {
 
     public static ZMQ.Socket reply;
     static ZMQ.Socket publisher;
 
-    static List<String> queue = new ArrayList<>();
+    //List saves the position of the unique User while Map saves the different clientIDs
+    public static List<String> positionInQueue= new ArrayList<>();
+    public static Map<String,QueueItem> queueItems = new HashMap<>();
     public static boolean queueChanged = false;
     public static void main(String[] args) throws Exception
     {
-
+        Gson json = new Gson();
 
         try(ZContext context = new ZContext())
         {
@@ -35,6 +40,7 @@ public class ServerMain {
                 if(incomingRequest != null)
                 {
                     IncomingRequests.handleNewRequest(incomingRequest);
+                    System.out.println(json.toJson(queueItems));
                 }
 
                 //Inform clients of changes in Queue
@@ -68,5 +74,6 @@ public class ServerMain {
     public static void publishQueueChanges()
     {
 
+        queueChanged = false;
     }
 }

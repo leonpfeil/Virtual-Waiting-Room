@@ -1,7 +1,9 @@
+package CommunicationObjects;
+
 public class ClientMessage {
-    boolean enterQueue;
-    String name;
-    String clientID;
+    public boolean enterQueue;
+    public String name;
+    public String clientID;
 
     public ClientMessage(boolean enterQueue,String name,String clientID)
     {

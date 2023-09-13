@@ -1,8 +1,7 @@
+import CommunicationObjects.ClientMessage;
+import CommunicationObjects.QueueItem;
+import CommunicationObjects.QueueTicket;
 import com.google.gson.*;
-import zmq.socket.clientserver.Server;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class IncomingRequests {
     static String name;
@@ -20,12 +19,16 @@ public class IncomingRequests {
         }
         else
         {
-
+            //TODO
+            //handleHeartBeat();
         }
 
-        //ServerMain.positionInQueue.indexOf()
-        //QueueTicket replyTicket = new QueueTicket(name,);
-        ServerMain.reply.send("aaaa");
+        //create CommunicationObjects.QueueTicket item for the response
+        int index = ServerMain.positionInQueue.indexOf(name);
+        QueueTicket replyTicket = new QueueTicket(index,name);
+
+
+        ServerMain.reply.send(gson.toJson(replyTicket));
     }
 
     static void joinQueue()
@@ -48,7 +51,7 @@ public class IncomingRequests {
             }
             else
             {
-                //if no changes return early to not change changedFlag
+                //if no changes return early to not change QueueChanged Flag
                 return;
             }
         }

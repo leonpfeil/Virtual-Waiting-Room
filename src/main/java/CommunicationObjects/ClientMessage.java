@@ -1,9 +1,12 @@
 package CommunicationObjects;
 
 public class ClientMessage {
-    public boolean enterQueue;
-    public String name;
-    public String clientID;
+
+    boolean enterQueue;
+
+    String name;
+
+    String clientID;
 
     public ClientMessage(boolean enterQueue,String name,String clientID)
     {
@@ -16,5 +19,17 @@ public class ClientMessage {
     {
         this.name = name;
         this.clientID = clientID;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean getEnterQueue() {
+        return enterQueue;
+    }
+
+    public String getClientID() {
+        return clientID;
     }
 }

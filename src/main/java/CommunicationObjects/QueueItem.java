@@ -1,19 +1,37 @@
 package CommunicationObjects;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 public class QueueItem {
-    public String name;
-    public List<String> clientID = new ArrayList<>();
+    String name;
 
-    //keep track of place in queue separately because there can be a single user with multiple clients.
-    // All clients are supposed to have the same place and therefore we cant simply use the index of the list
-    int placeInQueue;
+    List<String> clientIDList = new ArrayList<>();
+
+    Timer heartBeatTimer;
+
 
     public QueueItem(String name,String clientID)
     {
         this.name = name;
-        this.clientID.add(clientID);
+        this.clientIDList.add(clientID);
+        heartBeatTimer = new Timer(true);
+
+
+
     }
+
+    //maybe change interaction to something more reasonable
+    public void addIDToList(String ID)
+    {
+        clientIDList.add(ID);
+    }
+
+    public List<String> getClientIDList() {
+        return clientIDList;
+    }
+
+
 }

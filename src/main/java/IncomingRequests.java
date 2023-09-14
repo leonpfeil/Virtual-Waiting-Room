@@ -10,10 +10,10 @@ public class IncomingRequests {
     {
         Gson gson = new Gson();
         message = gson.fromJson(incomingRequest,ClientMessage.class);
-        name = message.name;
-        System.out.println(message.name + message.clientID + message.enterQueue);
+        name = message.getName();
+        System.out.println(message.getName() + message.getClientID() + message.getEnterQueue());
 
-        if(message.enterQueue)
+        if(message.getEnterQueue())
         {
             joinQueue();
         }
@@ -38,15 +38,15 @@ public class IncomingRequests {
         {
             ServerMain.positionInQueue.add(name);
 
-            QueueItem QI = new QueueItem(name, message.clientID);
+            QueueItem QI = new QueueItem(name, message.getClientID());
             ServerMain.queueItems.put(name,QI);
         }
         else
         {
             QueueItem QI = ServerMain.queueItems.get(name);
-            if(!QI.clientID.contains(message.clientID))
+            if(!QI.getClientIDList().contains(message.getClientID()))
             {
-                QI.clientID.add(message.clientID);
+                QI.addIDToList(message.getClientID());
                 ServerMain.queueItems.replace(name,QI);
             }
             else

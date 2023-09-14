@@ -4,26 +4,26 @@ import com.google.gson.Gson;
 import java.util.List;
 
 public class Broadcasts {
-    public static void publishQueueChanges() throws InterruptedException {
+    public static void publishQueueChanges(List<String> positionInQueue) throws InterruptedException {
         Gson gson = new Gson();
 
         //Copy so i don't have to type "ServerMain." every time
-        List<String> positionInQueueCopy = ServerMain.positionInQueue;
-        QueueTicket[] ticketArray = new QueueTicket[positionInQueueCopy.size()];
+
+        QueueTicket[] ticketArray = new QueueTicket[positionInQueue.size()];
 
 
 
 
         //Turn Name with corresponding position into a QueueTicket
-        for(int i = 0; i < positionInQueueCopy.size();i++)
+        for(int i = 0; i < positionInQueue.size();i++)
         {
-            ticketArray[i] = new QueueTicket(i,positionInQueueCopy.get(i));
+            ticketArray[i] = new QueueTicket(i,positionInQueue.get(i));
         }
 
         String arrayAsJSON = gson.toJson(ticketArray);
         System.out.println(arrayAsJSON);
 
-        Thread.sleep(1000);
+        //Thread.sleep(1000);
         ServerMain.publisher.sendMore("Queue");
         ServerMain.publisher.send(arrayAsJSON,0);
 

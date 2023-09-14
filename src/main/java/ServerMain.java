@@ -4,6 +4,7 @@ import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
+import java.time.Instant;
 import java.util.*;
 
 
@@ -13,7 +14,7 @@ public class ServerMain {
     static ZMQ.Socket publisher;
 
     //List saves the position of the unique User while Map saves the different clientIDs
-    public static List<String> positionInQueue= new ArrayList<>();
+    static List<String> positionInQueue= new ArrayList<>();
     public static Map<String, QueueItem> queueItems = new HashMap<>();
     public static boolean queueChanged = false;
     public static void main(String[] args) throws Exception
@@ -35,6 +36,8 @@ public class ServerMain {
             publisher.bind("tcp://*:5555");
             publisher.bind("ipc://Queue");
 
+
+
             //main loop
             while(!Thread.currentThread().isInterrupted()) {
                 //Handle incoming Queue join requests
@@ -48,7 +51,7 @@ public class ServerMain {
                 //Inform clients of changes in Queue
                 if (queueChanged) {
                     System.out.println("in queue changed rn");
-                    Broadcasts.publishQueueChanges();
+                    Broadcasts.publishQueueChanges(positionInQueue);
                 }
 
             }

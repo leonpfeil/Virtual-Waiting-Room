@@ -8,17 +8,17 @@ public class ClientMessage {
 
     String clientId;
 
-    public ClientMessage(boolean enterQueue,String name,String clientID)
+    public ClientMessage(boolean enterQueue,String name,String clientId)
     {
         this.enterQueue = enterQueue;
         this.name = name;
-        this.clientId = clientID;
+        this.clientId = clientId;
     }
 
-    public ClientMessage(String name,String clientID)
+    public ClientMessage(String name,String clientId)
     {
         this.name = name;
-        this.clientId = clientID;
+        this.clientId = clientId;
     }
 
     public String getName() {

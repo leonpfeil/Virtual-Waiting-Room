@@ -9,14 +9,13 @@ import java.util.*;
 
 
 public class ServerMain {
+    public static List<String> positionInQueue= new ArrayList<>();
+    public static Map<String, QueueItem> queueItems = new HashMap<>();
+    public static boolean queueChanged = false;
 
     public static ZMQ.Socket reply;
     static ZMQ.Socket publisher;
 
-    //List saves the position of the unique User while Map saves the different clientIDs
-    static List<String> positionInQueue= new ArrayList<>();
-    public static Map<String, QueueItem> queueItems = new HashMap<>();
-    public static boolean queueChanged = false;
     public static void main(String[] args) throws Exception
     {
         Gson json = new Gson();
@@ -57,6 +56,11 @@ public class ServerMain {
             }
 
         }
+
+    }
+
+    public static void deleteFromQueue(String ID)
+    {
 
     }
 

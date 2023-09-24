@@ -6,19 +6,19 @@ public class ClientMessage {
 
     String name;
 
-    String clientID;
+    String clientId;
 
     public ClientMessage(boolean enterQueue,String name,String clientID)
     {
         this.enterQueue = enterQueue;
         this.name = name;
-        this.clientID = clientID;
+        this.clientId = clientID;
     }
 
     public ClientMessage(String name,String clientID)
     {
         this.name = name;
-        this.clientID = clientID;
+        this.clientId = clientID;
     }
 
     public String getName() {
@@ -30,6 +30,6 @@ public class ClientMessage {
     }
 
     public String getClientID() {
-        return clientID;
+        return clientId;
     }
 }

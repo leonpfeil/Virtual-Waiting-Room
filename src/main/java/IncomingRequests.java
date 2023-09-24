@@ -9,8 +9,11 @@ public class IncomingRequests {
     public static void handleNewRequest(String incomingRequest)
     {
         Gson gson = new Gson();
+        System.out.println("JSON:");
+        System.out.println(incomingRequest);
         message = gson.fromJson(incomingRequest,ClientMessage.class);
         name = message.getName();
+        System.out.println("Object:");
         System.out.println(message.getName() + message.getClientID() + message.getEnterQueue());
 
         if(message.getEnterQueue())

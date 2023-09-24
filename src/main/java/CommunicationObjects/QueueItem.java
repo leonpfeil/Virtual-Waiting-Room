@@ -1,23 +1,23 @@
 package CommunicationObjects;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
+import java.util.*;
 
 public class QueueItem {
     String name;
 
     List<String> clientIDList = new ArrayList<>();
 
-    Timer heartBeatTimer;
+    //Map from ClientID to corresponding Heartbeattimer
+    //Map<String,Timer> heartBeatTimerMap = new HashMap();
 
 
     public QueueItem(String name,String clientID)
     {
         this.name = name;
-        this.clientIDList.add(clientID);
-        heartBeatTimer = new Timer(true);
+        addIDToList(clientID);
+
+
+
 
 
 
@@ -27,11 +27,32 @@ public class QueueItem {
     public void addIDToList(String ID)
     {
         clientIDList.add(ID);
+        //startNewTimer(ID);
+
     }
 
     public List<String> getClientIDList() {
         return clientIDList;
     }
+
+    /*public void startNewTimer(String ID)
+    {
+        Timer heartBeatTimer = new Timer();
+        HeartbeatTimerTask task = new HeartbeatTimerTask(name,ID);
+        task.run();
+
+    }
+
+    public void executeHeartbeat(String ID)
+    {
+        Timer t = new Timer();
+        HeartbeatTimerTask task = new HeartbeatTimerTask(name,ID);
+        //t.schedule(task,);
+        heartBeatTimerMap.get(ID).cancel();
+
+
+        heartBeatTimerMap.replace(ID,new Timer());
+    } */
 
 
 }

@@ -24,7 +24,7 @@ public class Broadcasts {
         System.out.println(arrayAsJSON);
 
         //Thread.sleep(1000);
-        ServerMain.publisher.sendMore("Queue");
+        ServerMain.publisher.sendMore("queue");
         ServerMain.publisher.send(arrayAsJSON,0);
 
 

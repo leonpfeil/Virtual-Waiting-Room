@@ -15,23 +15,25 @@ public class IncomingRequests {
 
     public IncomingRequests(String incomingRequestString, Queue queue)
     {
-        System.out.println("JSON:");
-        System.out.println(incomingRequestString);
+        //System.out.println("JSON:");
+        //System.out.println(incomingRequestString);
 
         message = gson.fromJson(incomingRequestString,ClientMessage.class);
         name = message.getName();
         clientID = message.getClientID();
 
-        System.out.println("Object:");
-        System.out.println(message.getName() + message.getClientID() + message.getEnterQueue());
+        //System.out.println("Object:");
+        //System.out.println(message.getName() + message.getClientID() + message.getEnterQueue());
 
         this.queue = queue;
+
     }
     public void handleNewRequest()
     {
 
         QueueTicket replyTicket;
         String replyString;
+
 
         if(message.getEnterQueue())
         {
@@ -77,6 +79,7 @@ public class IncomingRequests {
 
     void handleHeartBeat()
     {
+        System.out.println(queue.toString());
         queue.startTimer(name,clientID);
     }
 }

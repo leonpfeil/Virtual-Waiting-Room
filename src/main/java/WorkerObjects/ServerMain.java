@@ -35,18 +35,22 @@ public class ServerMain {
             publisher.bind("tcp://*:5555");
 
 
-
+            System.out.println("Connection established");
             //main loop
             while(!Thread.currentThread().isInterrupted()) {
                 //Handle incoming FunctionalObjects.Queue join requests
                 //or Heartbeats
                 String incomingRequestString = reply.recvStr(0);
-                if (incomingRequestString != null) {
+                if (!incomingRequestString.isEmpty()) {
                     IncomingRequests newRequest = new IncomingRequests(incomingRequestString,queue);
                     newRequest.handleNewRequest();
                     //queue.debugPrintQueueItems();
                 }
 
+                //TODO add connect event monitor
+                //TODO clean buffer before start
+                //TODO timer that checks if main thread is still alive, if not restart with persisten queue
+                //TODO save queue state to storage
                 //Inform clients of changes in FunctionalObjects.Queue
                 if (queue.isQueueChanged()) {
                     System.out.println("queue has changed, broadcasting changes");
@@ -54,7 +58,6 @@ public class ServerMain {
                     //lets check if its a reference
                     queue.isQueueChanged();
                 }
-
             }
 
         }

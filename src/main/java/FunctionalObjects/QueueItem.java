@@ -55,5 +55,15 @@ public class QueueItem {
 
     }
 
+    public String toString()
+    {
+        StringBuilder out = new StringBuilder();
+        for(String s : clientIDList)
+        {
+            out.append(s + " ");
+        }
+        return out.toString();
+    }
+
 
 }

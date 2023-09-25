@@ -85,7 +85,10 @@ public class Queue {
 
     public void removeID(String name,String clientID)
     {
+        List<String> test = queueItems.get(name).clientIDList;
+        System.out.println(test.toString());
         queueItems.get(name).clientIDList.remove(clientID);
+
         if(queueItems.get(name).clientIDList.isEmpty())
         {
             positionInQueue.remove(name);
@@ -95,6 +98,24 @@ public class Queue {
 
     public void startTimer(String name,String clientID)
     {
-        queueItems.get(name).startTimer(clientID);
+        try
+        {
+            queueItems.get(name).startTimer(clientID);
+        }
+        catch (NullPointerException e)
+        {
+            System.out.println(e.getMessage());
+        }
     }
+
+    public String toString()
+    {
+        StringBuilder out = new StringBuilder();
+        for(String QI : queueItems.keySet())
+        {
+            out.append(queueItems.get(QI).toString());
+        }
+        return out.toString();
+    }
+
 }

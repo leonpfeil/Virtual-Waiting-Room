@@ -1,6 +1,4 @@
-package FunctionalObjects;
-
-import FunctionalObjects.HeartbeatTimerTask;
+package InternalModels;
 
 import java.util.*;
 

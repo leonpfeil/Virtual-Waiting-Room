@@ -1,7 +1,6 @@
-package FunctionalObjects;
+package InternalModels;
 
-import FunctionalObjects.QueueItem;
-import CommunicationObjects.QueueTicket;
+import CommunicationModels.QueueTicket;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;

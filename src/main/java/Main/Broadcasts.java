@@ -1,7 +1,7 @@
-package WorkerObjects;
+package Main;
 
-import CommunicationObjects.QueueTicket;
-import FunctionalObjects.Queue;
+import CommunicationModels.QueueTicket;
+import InternalModels.Queue;
 import com.google.gson.Gson;
 
 public class Broadcasts {

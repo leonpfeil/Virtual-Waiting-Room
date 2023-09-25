@@ -1,4 +1,4 @@
-package FunctionalObjects;
+package InternalModels;
 
 import java.util.TimerTask;
 

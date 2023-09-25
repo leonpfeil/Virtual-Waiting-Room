@@ -1,6 +1,6 @@
-package WorkerObjects;
+package Main;
 
-import FunctionalObjects.Queue;
+import InternalModels.Queue;
 import com.google.gson.Gson;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;

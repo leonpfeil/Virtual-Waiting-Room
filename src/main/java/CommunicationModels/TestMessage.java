@@ -1,4 +1,4 @@
-package CommunicationObjects;
+package CommunicationModels;
 
 public class TestMessage {
     String name;

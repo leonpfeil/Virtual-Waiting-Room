@@ -1,14 +1,12 @@
-package WorkerObjects;
+package Main;
 
-import CommunicationObjects.ClientMessage;
-import CommunicationObjects.TestMessage;
+import CommunicationModels.ClientMessage;
+import CommunicationModels.TestMessage;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
 import com.google.gson.Gson;
-
-import java.time.Instant;
 
 public class ClientMain {
     public static void main(String[] args) throws InterruptedException {

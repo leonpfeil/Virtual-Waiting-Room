@@ -1,8 +1,8 @@
-package WorkerObjects;
+package Main;
 
-import CommunicationObjects.ClientMessage;
-import CommunicationObjects.QueueTicket;
-import FunctionalObjects.Queue;
+import CommunicationModels.ClientMessage;
+import CommunicationModels.QueueTicket;
+import InternalModels.Queue;
 import com.google.gson.*;
 
 public class IncomingRequests {

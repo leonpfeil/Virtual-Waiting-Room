@@ -43,12 +43,6 @@ public class Queue {
         return ticketArray;
     }
 
-
-    public void debugPrintQueueItems()
-    {
-        System.out.println(json.toJson(queueItems));
-    }
-
     public int getCurrentPositionInQueue(String name)
     {
         return positionInQueue.indexOf(name);
@@ -65,33 +59,30 @@ public class Queue {
 
         QueueItem QI = new QueueItem(name, clientID,queue);
         queueItems.put(name,QI);
+
+        setQueueChanged(true);
     }
 
-    public boolean addIDToExistingUser(String name,String clientID)
+    public void addIDToExistingUser(String name,String clientID)
     {
+        //Check if id already in list, if not add id to this user
         QueueItem QI = queueItems.get(name);
-        if(QI.getClientIDList().contains(clientID))
-        {
-            //ID is already in list, nothing changed so we don't need to broadcast any changes
-            return false;
-        }
-        else
+        if(!QI.getClientIDList().contains(clientID))
         {
             QI.addIDToList(clientID);
-            return true;
+
         }
     }
 
     public void removeID(String name,String clientID)
     {
-        List<String> test = queueItems.get(name).clientIDList;
-        System.out.println(test.toString());
         queueItems.get(name).clientIDList.remove(clientID);
 
         if(queueItems.get(name).clientIDList.isEmpty())
         {
             positionInQueue.remove(name);
             queueItems.remove(name);
+            setQueueChanged(true);
         }
     }
 

@@ -9,23 +9,23 @@ public class Broadcasts {
 
     ZMQ.Socket publisher;
     Queue queue;
-    public Broadcasts(ZMQ.Socket socket,Queue queue)
-        {
-            publisher = socket;
-            this.queue = queue;
-        }
 
-    public void publishQueueChanges(){
+    public Broadcasts(ZMQ.Socket socket, Queue queue) {
+        publisher = socket;
+        this.queue = queue;
+    }
+
+    public void publishQueueChanges() {
         Gson gson = new Gson();
 
+        //get ordered list
         QueueTicket[] ticketArray = queue.createOrderedQueueTicketArray();
 
         String arrayAsJSON = gson.toJson(ticketArray);
         System.out.println(arrayAsJSON);
-
-        //Thread.sleep(1000);
+        
         publisher.sendMore("queue");
-        publisher.send(arrayAsJSON,0);
+        publisher.send(arrayAsJSON, 0);
 
         queue.setQueueChanged(false);
         System.out.println("-published queue changes-");

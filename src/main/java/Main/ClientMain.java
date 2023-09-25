@@ -2,13 +2,13 @@ package Main;
 
 import CommunicationModels.ClientMessage;
 import CommunicationModels.TestMessage;
+import com.google.gson.Gson;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
-import com.google.gson.Gson;
-
 public class ClientMain {
+
     public static void main(String[] args) throws InterruptedException {
         ZContext context = new ZContext();
         ZMQ.Socket subscriber = context.createSocket(SocketType.SUB);
@@ -19,9 +19,10 @@ public class ClientMain {
         socket.connect("tcp://localhost:5556");
 
 
-        ClientMessage newMessage = new ClientMessage(true,"test","69");
+        ClientMessage newMessage = new ClientMessage(true, "test1", "699");
 
         Gson gson = new Gson();
+
         String json = gson.toJson(newMessage);
         System.out.println("Sending:");
         System.out.println(json);
@@ -42,7 +43,7 @@ public class ClientMain {
         Thread.sleep(2000);
 
 
-        TestMessage heartbeat = new TestMessage("test","69");
+        TestMessage heartbeat = new TestMessage("test", "699");
         socket.send(gson.toJson(heartbeat));
         String reply = socket.recvStr();
         System.out.println(reply);

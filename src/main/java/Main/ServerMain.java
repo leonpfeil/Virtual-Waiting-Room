@@ -7,17 +7,15 @@ import org.zeromq.ZMQ;
 
 
 public class ServerMain {
-    static Queue queue = new Queue();
+
     static ZMQ.Socket reply;
     static ZMQ.Socket publisher;
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
+        Queue clientQueue = new Queue();
+        Queue supervisorQueue = new Queue();
 
-        try(ZContext context = new ZContext())
-        {
-
-
+        try (ZContext context = new ZContext()) {
 
 
             //start listening for clients that want to join the queue
@@ -28,12 +26,12 @@ public class ServerMain {
             publisher = context.createSocket(SocketType.PUB);
             publisher.bind("tcp://*:5555");
 
-            Broadcasts broadcast = new Broadcasts(publisher,queue);
-            RequestHandler requestHandler = new RequestHandler(queue);
+            Broadcasts broadcast = new Broadcasts(publisher, clientQueue);
+            RequestHandler requestHandler = new RequestHandler(clientQueue, supervisorQueue);
 
             System.out.println("Connection established");
             //main loop
-            while(!Thread.currentThread().isInterrupted()) {
+            while (!Thread.currentThread().isInterrupted()) {
                 //Handle incoming queue join requests
                 //or Heartbeats
                 String incomingRequestString = reply.recvStr(0);
@@ -48,7 +46,7 @@ public class ServerMain {
                 //TODO timer that checks if main thread is still alive, if not restart with persistent queue
                 //TODO save queue state to storage
                 //Inform clients of changes in queue
-                if (queue.isQueueChanged()) {
+                if (clientQueue.isQueueChanged() || supervisorQueue.isQueueChanged()) {
                     System.out.println("queue has changed, broadcasting changes");
                     broadcast.publishQueueChanges();
                 }

@@ -7,18 +7,18 @@ import CommunicationModels.QueueTicket.QueueTicket;
 import CommunicationModels.QueueTicket.SupervisorLoginStatus;
 import InternalModels.Queue;
 import InternalModels.QueueItem;
-import InternalModels.SupervisorQueue;
-import InternalModels.SupervisorQueueItem;
 import InternalModels.SupervisorState.Status;
 import com.google.gson.Gson;
 
 public class RequestHandler {
     private Queue clientQueue;
-    private SupervisorQueue supervisorQueue;
+    private Queue supervisorQueue;
     Broadcasts broadcast;
     private Gson gson = new Gson();
 
-    public RequestHandler(Broadcasts broadcast,Queue clientQueue, SupervisorQueue supervisorQueue) {
+    int index = 1;
+
+    public RequestHandler(Broadcasts broadcast,Queue clientQueue, Queue supervisorQueue) {
         this.clientQueue = clientQueue;
         this.supervisorQueue = supervisorQueue;
         this.broadcast = broadcast;
@@ -46,7 +46,9 @@ public class RequestHandler {
 
         if (message.getEnterQueue()) {
 
-            if(!joinQueue(message, queue))
+            boolean joinSuccessful = joinQueue(message, queue);
+
+            if(!joinSuccessful)
             {
                 ErrorMessage error = new ErrorMessage("Invalid name","The chosen name is invalid");
                 return gson.toJson(error);
@@ -59,13 +61,13 @@ public class RequestHandler {
             else //Clients get a ticket with their position in the queue
             {
                 //create QueueTicket item for the response
-                int index = queue.getCurrentPositionInQueue(message.getName());
-                replyTicket = new ClientQueueTicket(index, message.getName());
+
+                replyTicket = new ClientQueueTicket(queue.getQueueItems().get(message.getName()).getIndex(), message.getName());
 
             }
             replyString = gson.toJson(replyTicket);
 
-        } else if(message.isSupervisor()){ //if supervisor but not login = either a statuschange or a message broadcast
+        } else if(message.isSupervisor() && (message.getStatus() != null || message.getOptionalMessage() != null)){ //if supervisor but not login = either a statuschange or a message broadcast
             replyString = handleSupervisorRequest(message);
 
         } else
@@ -94,7 +96,8 @@ public class RequestHandler {
 
         if (!queue.isNameInQueue(message.getName())) {
             //If client wants to join and isnt already in the queue (via another client) add them to the list
-            queue.addNewUserToQueue(message.getName(), message.getClientID(), queue);
+            queue.addNewUserToQueue(message.getName(), message.getClientID(), queue,index);
+            index++;
 
             //if the client is a user and there are available supervisor assign this client to a supervisor
             if(!message.isSupervisor() && !supervisorQueue.getAvailableSupervisor().isEmpty())
@@ -139,36 +142,37 @@ public class RequestHandler {
     //Therefor its assumed that if it is not pending it has to be available
     private Status processStatusChange(ClientMessage message)
     {
-        SupervisorQueueItem queueItem = ((SupervisorQueueItem)supervisorQueue.getQueueItems());
         if(message.getStatus() == Status.pending)
         {
-            queueItem.setStatus(Status.pending);
+            supervisorQueue.getQueueItems().get(message.getName()).setStatus(Status.pending);
             return Status.pending;
         }
         else if(!clientQueue.getPositionInQueue().isEmpty()) //if there are clients waiting in queue immediately send them to supervisor and set occupied
         {
             QueueItem acceptedClient = clientQueue.acceptClient();
-            broadcast.publishSupervisorMessage(acceptedClient.getName(), message.getName(),message.getOptionalMessage());
-            queueItem.setStatus(Status.occupied);
-            queueItem.setClient(acceptedClient);
+            supervisorQueue.getQueueItems().get(message.getName()).setStatus(Status.occupied);
+            supervisorQueue.getQueueItems().get(message.getName()).setClient(acceptedClient);
+            broadcast.publishSupervisorMessage(acceptedClient.getName(), message.getName(),message.getOptionalMessage(),acceptedClient.getIndex());
             return Status.occupied;
         }
         else
         {
-            ((SupervisorQueueItem)supervisorQueue.getQueueItems().get(message.getName())).setStatus(Status.available);
-            queueItem.setSupervisorMessage(message.getOptionalMessage());
+            supervisorQueue.getQueueItems().get(message.getName()).setStatus(Status.available);
+            supervisorQueue.getQueueItems().get(message.getName()).setSupervisorMessage(message.getOptionalMessage());
             return Status.available;
         }
     }
 
     private void assignClientToSupervisor(String clientName)
     {
-        clientQueue.acceptClient(clientName);
+        QueueItem client = clientQueue.acceptClient(clientName);
         String supervisorName = supervisorQueue.removeSupervisorFromAvailable();
-        SupervisorQueueItem supervisorItem = (SupervisorQueueItem) supervisorQueue.getQueueItems().get(supervisorName);
+        QueueItem supervisorItem = supervisorQueue.getQueueItems().get(supervisorName);
+        supervisorItem.setClient(client);
+        supervisorQueue.getQueueItems().get(supervisorName).setStatus(Status.occupied);
 
-        broadcast.publishSupervisorMessage(clientName,supervisorName,supervisorItem.getSupervisorMessage());
-        ((SupervisorQueueItem)supervisorQueue.getQueueItems().get(supervisorName)).setStatus(Status.occupied);
+        broadcast.publishSupervisorMessage(clientName,supervisorName,supervisorItem.getSupervisorMessage(), client.getIndex());
+
 
     }
 

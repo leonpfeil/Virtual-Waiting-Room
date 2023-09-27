@@ -2,13 +2,11 @@ package Main;
 
 import CommunicationModels.ErrorMessage;
 import InternalModels.Queue;
-import InternalModels.SupervisorQueue;
+import InternalModels.QueueItem;
+import com.google.gson.Gson;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 public class ServerMain {
@@ -16,9 +14,11 @@ public class ServerMain {
     static ZMQ.Socket reply;
     static ZMQ.Socket publisher;
 
+    private Gson gson = new Gson();
+
     public static void main(String[] args) {
         Queue clientQueue = new Queue();
-        SupervisorQueue supervisorQueue = new SupervisorQueue();
+        Queue supervisorQueue = new Queue();
 
         ZContext context = new ZContext();
 
@@ -84,6 +84,9 @@ public class ServerMain {
                     System.out.println("supervisor queue has changed, broadcasting changes");
                     broadcast.publishQueueChanges(true);
                 }
+
+
+
             }
 
 

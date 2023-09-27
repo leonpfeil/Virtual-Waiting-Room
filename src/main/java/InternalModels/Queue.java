@@ -14,6 +14,9 @@ public class Queue {
     private List<String> positionInQueue= new ArrayList<>();
     private Map<String, QueueItem> queueItems = new HashMap<>();
 
+    //supervisor
+    List<String> available = new ArrayList<>();
+
     //is only set to true inside of an queue object or queueitem object
     //will be set to false once changes have been broadcast to all clients in Broadcast.java
     private boolean queueChanged = false;
@@ -54,11 +57,11 @@ public class Queue {
         return positionInQueue.contains(name);
     }
 
-    public void addNewUserToQueue(String name,String clientID,Queue queue)
+    public void addNewUserToQueue(String name,String clientID,Queue queue,int index)
     {
         positionInQueue.add(name);
 
-        QueueItem QI = new QueueItem(name, clientID,queue);
+        QueueItem QI = new QueueItem(name, clientID,queue,index);
         queueItems.put(name,QI);
 
         setQueueChanged(true);
@@ -89,14 +92,14 @@ public class Queue {
 
     public void startTimer(String name,String clientID)
     {
-        /*try
+        try
         {
             queueItems.get(name).startTimer(clientID);
         }
         catch (NullPointerException e)
         {
             System.out.println(e.getMessage());
-        }*/
+        }
     }
 
     public String toString()
@@ -122,6 +125,7 @@ public class Queue {
         QueueItem clientItem = queueItems.get(name);
 
         positionInQueue.remove(0);
+        queueItems.get(name).destroyAllTimers();
         queueItems.remove(name);
 
         setQueueChanged(true);
@@ -133,14 +137,56 @@ public class Queue {
      * removes a specific client from the Queue
      * @param name Client name
      */
-    public void acceptClient(String name)
+    public QueueItem acceptClient(String name)
     {
         //removes specified client
+        QueueItem item;
 
         positionInQueue.remove(name);
+        queueItems.get(name).destroyAllTimers();
+        item = queueItems.get(name);
         queueItems.remove(name);
 
         setQueueChanged(true);
+        return item;
+    }
+
+
+    public SupervisorQueueTicket[] createOrderedSupervisorQueueTicketArray(Queue clientQueue)
+    {
+
+
+        SupervisorQueueTicket[] ticketArray = new SupervisorQueueTicket[getPositionInQueue().size()];
+        for(int i = 0; i < getPositionInQueue().size();i++)
+        {
+            String name = getPositionInQueue().get(i);
+            QueueItem QI = getQueueItems().get(name);
+
+            ClientQueueTicket clientTicket = null;
+            if(QI.getClient() != null)
+            {
+                String clientName = QI.getClient().getName();
+
+                clientTicket = new ClientQueueTicket(QI.getIndex(),clientName);
+            }
+
+            ticketArray[i] = new SupervisorQueueTicket(name,QI.getStatus(),clientTicket);
+        }
+        return ticketArray;
+
+    }
+
+    public String removeSupervisorFromAvailable()
+    {
+        String name = available.get(0);
+        available.remove(0);
+
+        return name;
+    }
+
+    public List<String> getAvailableSupervisor()
+    {
+        return available;
     }
 
 }

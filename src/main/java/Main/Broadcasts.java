@@ -4,7 +4,6 @@ import CommunicationModels.*;
 import CommunicationModels.QueueTicket.ClientQueueTicket;
 import CommunicationModels.QueueTicket.QueueTicket;
 import InternalModels.Queue;
-import InternalModels.SupervisorQueue;
 import com.google.gson.Gson;
 import org.zeromq.ZMQ;
 
@@ -12,11 +11,11 @@ class Broadcasts {
 
     private ZMQ.Socket publisher;
     private Queue clientQueue;
-    private SupervisorQueue supervisorQueue;
+    private Queue supervisorQueue;
 
     private Gson gson = new Gson();
 
-    public Broadcasts(ZMQ.Socket socket, Queue clientQueue,SupervisorQueue supervisorQueue) {
+    public Broadcasts(ZMQ.Socket socket, Queue clientQueue,Queue supervisorQueue) {
         publisher = socket;
         this.clientQueue = clientQueue;
         this.supervisorQueue = supervisorQueue;
@@ -56,13 +55,13 @@ class Broadcasts {
      * @param message The Supervisor's message to the client
      *
      */
-    public void publishSupervisorMessage(String acceptedUserName,String supervisorName, String message)
+    public void publishSupervisorMessage(String acceptedUserName,String supervisorName, String message,int index)
     {
         SupervisorMessage supervisorMessage = new SupervisorMessage(supervisorName,message);
         publisher.sendMore(acceptedUserName);
         publisher.send(gson.toJson(supervisorMessage),0);
 
-        informSupervisorOfClient(acceptedUserName,supervisorName); //after informing the client of the supervisor we next have to inform the supervisor which client they will receive
+        informSupervisorOfClient(acceptedUserName,supervisorName,index); //after informing the client of the supervisor we next have to inform the supervisor which client they will receive
     }
 
     /**
@@ -76,9 +75,9 @@ class Broadcasts {
         publisher.send(gson.toJson(supervisorMessage),0);
     }
 
-    private void informSupervisorOfClient(String acceptedUserName,String supervisorName)
+    private void informSupervisorOfClient(String acceptedUserName,String supervisorName,int index)
     {
-        QueueTicket ticket = new ClientQueueTicket(0,acceptedUserName);
+        QueueTicket ticket = new ClientQueueTicket(index,acceptedUserName);
         publisher.sendMore(supervisorName);
         publisher.send(gson.toJson(ticket));
 

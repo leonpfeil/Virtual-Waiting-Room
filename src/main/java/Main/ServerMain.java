@@ -13,7 +13,7 @@ public class ServerMain {
 
     public static void main(String[] args) {
         Queue clientQueue = new Queue();
-        Queue supervisorQueue = new Queue();
+        Queue supervisorQueue = new Queue(); 
 
         try (ZContext context = new ZContext()) {
 
@@ -26,8 +26,8 @@ public class ServerMain {
             publisher = context.createSocket(SocketType.PUB);
             publisher.bind("tcp://*:5555");
 
-            Broadcasts broadcast = new Broadcasts(publisher, clientQueue);
-            RequestHandler requestHandler = new RequestHandler(clientQueue, supervisorQueue);
+            Broadcasts broadcast = new Broadcasts(publisher, clientQueue,supervisorQueue);
+            RequestHandler requestHandler = new RequestHandler(broadcast,clientQueue, supervisorQueue);
 
             System.out.println("Connection established");
             //main loop
@@ -46,9 +46,14 @@ public class ServerMain {
                 //TODO timer that checks if main thread is still alive, if not restart with persistent queue
                 //TODO save queue state to storage
                 //Inform clients of changes in queue
-                if (clientQueue.isQueueChanged() || supervisorQueue.isQueueChanged()) {
-                    System.out.println("queue has changed, broadcasting changes");
-                    broadcast.publishQueueChanges();
+                if (clientQueue.isQueueChanged()) {
+                    System.out.println("client queue has changed, broadcasting changes");
+                    broadcast.publishQueueChanges(false);
+                }
+                if(supervisorQueue.isQueueChanged())
+                {
+                    System.out.println("supervisor queue has changed, broadcasting changes");
+                    broadcast.publishQueueChanges(true);
                 }
             }
 

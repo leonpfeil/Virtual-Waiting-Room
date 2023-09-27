@@ -10,10 +10,10 @@ public class ClientMessage {
     String clientId;
 
 
-    //Supervisorexclusive information
+    //Supervisor-exclusive information
     boolean supervisor;
     String optionalMessage;
-    SupervisorState.switchTo switchTo;
+    SupervisorState.Status status;
 
     public ClientMessage(boolean enterQueue, String name, String clientId) {
         this.enterQueue = enterQueue;
@@ -40,5 +40,45 @@ public class ClientMessage {
 
     public String getClientID() {
         return clientId;
+    }
+
+    public boolean isEnterQueue() {
+        return enterQueue;
+    }
+
+    public void setEnterQueue(boolean enterQueue) {
+        this.enterQueue = enterQueue;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public void setSupervisor(boolean supervisor) {
+        this.supervisor = supervisor;
+    }
+
+    public String getOptionalMessage() {
+        return optionalMessage;
+    }
+
+    public void setOptionalMessage(String optionalMessage) {
+        this.optionalMessage = optionalMessage;
+    }
+
+    public SupervisorState.Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(SupervisorState.Status status) {
+        this.status = status;
     }
 }

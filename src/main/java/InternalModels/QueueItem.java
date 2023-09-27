@@ -3,14 +3,19 @@ package InternalModels;
 import java.util.*;
 
 public class QueueItem {
-    String name;
+    private String name;
 
     List<String> clientIDList = new ArrayList<>();
 
     //Map from ClientID to corresponding Heartbeattimer
-    Map<String,Timer> heartBeatTimerMap = new HashMap();
-    Queue queue;
+    private Map<String,Timer> heartBeatTimerMap = new HashMap();
+    private Queue queue;
 
+    //if this object represents a supervisor then this object contains the current client the supervisor is attending, otherwise null
+    private QueueItem client;
+    private SupervisorState.Status status = SupervisorState.Status.pending;
+
+    private String supervisorMessage;
 
     public QueueItem(String name,String clientID,Queue queue)
     {
@@ -21,7 +26,7 @@ public class QueueItem {
 
     }
 
-    //maybe change interaction to something more reasonable
+
     public void addIDToList(String ID)
     {
         clientIDList.add(ID);
@@ -41,7 +46,7 @@ public class QueueItem {
 
         if(heartBeatTimerMap.containsKey(clientID))
         {
-            //refresh heartbeattimer
+            //refresh heartbeat-timer
             heartBeatTimerMap.get(clientID).cancel();
             heartBeatTimerMap.replace(clientID,heartBeatTimer);
         }
@@ -63,5 +68,38 @@ public class QueueItem {
         return out.toString();
     }
 
+    public QueueItem getClient() {
+        return client;
+    }
 
+    public void setClient(QueueItem client) {
+        this.client = client;
+        queue.setQueueChanged(true);
+    }
+
+    public SupervisorState.Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(SupervisorState.Status status) {
+        this.status = status;
+        queue.setQueueChanged(true);
+
+        if(status == SupervisorState.Status.available)
+            queue.available.add(name);
+        else
+            queue.available.remove(name);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getSupervisorMessage() {
+        return supervisorMessage;
+    }
+
+    public void setSupervisorMessage(String supervisorMessage) {
+        this.supervisorMessage = supervisorMessage;
+    }
 }

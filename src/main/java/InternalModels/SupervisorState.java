@@ -1,7 +1,7 @@
 package InternalModels;
 
 public class SupervisorState {
-    public enum switchTo {
+    public enum Status {
         pending,
         available,
         occupied

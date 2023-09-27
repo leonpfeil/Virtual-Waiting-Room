@@ -1,7 +1,7 @@
 package InternalModels;
 
-import CommunicationModels.QueueTicket;
-import com.google.gson.Gson;
+import CommunicationModels.QueueTicket.ClientQueueTicket;
+import CommunicationModels.QueueTicket.SupervisorQueueTicket;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,11 +11,15 @@ import java.util.Map;
 public class Queue {
 
     //List saves the position of the unique User while Map saves the different clientIDs and timers associated with that user
-    List<String> positionInQueue= new ArrayList<>();
-    Map<String, QueueItem> queueItems = new HashMap<>();
-    boolean queueChanged = false;
+    private List<String> positionInQueue= new ArrayList<>();
+    private Map<String, QueueItem> queueItems = new HashMap<>();
 
-    Gson json = new Gson();
+    //is only set to true inside of an queue object or queueitem object
+    //will be set to false once changes have been broadcast to all clients in Broadcast.java
+    private boolean queueChanged = false;
+
+    //supervisor
+    List<String> available = new ArrayList<>();
 
     public List<String> getPositionInQueue() {
         return positionInQueue;
@@ -33,12 +37,12 @@ public class Queue {
         this.queueChanged = queueChanged;
     }
 
-    public QueueTicket[] createOrderedQueueTicketArray()
+    public ClientQueueTicket[] createOrderedClientQueueTicketArray()
     {
-        QueueTicket[] ticketArray = new QueueTicket[positionInQueue.size()];
+        ClientQueueTicket[] ticketArray = new ClientQueueTicket[positionInQueue.size()];
         for(int i = 0; i < positionInQueue.size();i++)
         {
-            ticketArray[i] = new QueueTicket(i,positionInQueue.get(i));
+            ticketArray[i] = new ClientQueueTicket(i,positionInQueue.get(i));
         }
         return ticketArray;
     }
@@ -106,6 +110,76 @@ public class Queue {
             out.append(queueItems.get(QI).toString());
         }
         return out.toString();
+    }
+
+    //supervisor related methods
+
+    public SupervisorQueueTicket[] createOrderedSupervisorQueueTicketArray(Queue clientQueue)
+    {
+
+        SupervisorQueueTicket[] ticketArray = new SupervisorQueueTicket[positionInQueue.size()];
+        for(int i = 0; i < positionInQueue.size();i++)
+        {
+            String name = positionInQueue.get(i);
+            QueueItem QI = queueItems.get(name);
+
+            ClientQueueTicket clientTicket = null;
+            if(QI.getClient() != null)
+            {
+                String clientName = QI.getClient().getName();
+                int position = clientQueue.getCurrentPositionInQueue(clientName);
+
+                clientTicket = new ClientQueueTicket(position,name);
+            }
+
+            ticketArray[i] = new SupervisorQueueTicket(name,QI.getStatus(),clientTicket);
+        }
+        return ticketArray;
+
+    }
+
+    /**
+     * removes first Client from Queue and returns the name
+     * @return
+     */
+    public QueueItem acceptClient()
+    {
+        String name = positionInQueue.get(0);
+        QueueItem clientItem = queueItems.get(name);
+
+        positionInQueue.remove(0);
+        queueItems.remove(name);
+
+        setQueueChanged(true);
+
+        return clientItem;
+    }
+
+    /**
+     * removes a specific client from the Queue
+     * @param name Client name
+     */
+    public void acceptClient(String name)
+    {
+        //removes specified client
+
+        positionInQueue.remove(name);
+        queueItems.remove(name);
+
+        setQueueChanged(true);
+    }
+
+    public List<String> getAvailableSupervisor()
+    {
+        return available;
+    }
+
+    public String removeSupervisorFromAvailable()
+    {
+        String name = available.get(0);
+        available.remove(0);
+
+        return name;
     }
 
 }

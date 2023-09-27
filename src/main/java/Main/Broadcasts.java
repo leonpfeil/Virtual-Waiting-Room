@@ -4,6 +4,7 @@ import CommunicationModels.*;
 import CommunicationModels.QueueTicket.ClientQueueTicket;
 import CommunicationModels.QueueTicket.QueueTicket;
 import InternalModels.Queue;
+import InternalModels.SupervisorQueue;
 import com.google.gson.Gson;
 import org.zeromq.ZMQ;
 
@@ -11,11 +12,11 @@ class Broadcasts {
 
     private ZMQ.Socket publisher;
     private Queue clientQueue;
-    private Queue supervisorQueue;
+    private SupervisorQueue supervisorQueue;
 
     private Gson gson = new Gson();
 
-    public Broadcasts(ZMQ.Socket socket, Queue clientQueue,Queue supervisorQueue) {
+    public Broadcasts(ZMQ.Socket socket, Queue clientQueue,SupervisorQueue supervisorQueue) {
         publisher = socket;
         this.clientQueue = clientQueue;
         this.supervisorQueue = supervisorQueue;
@@ -25,21 +26,24 @@ class Broadcasts {
 
         Queue queue;
         QueueTicket[] ticketArray;
+        String topic;
         if(isSupervisor)
         {
             queue = supervisorQueue;
             ticketArray = supervisorQueue.createOrderedSupervisorQueueTicketArray(clientQueue);
+            topic = "supervisors";
         }
         else
         {
             queue = clientQueue;
             ticketArray = clientQueue.createOrderedClientQueueTicketArray();
+            topic = "queue";
         }
 
         String arrayAsJSON = gson.toJson(ticketArray);
         System.out.println(arrayAsJSON);
 
-        publisher.sendMore("queue");
+        publisher.sendMore(topic);
         publisher.send(arrayAsJSON, 0);
 
         queue.setQueueChanged(false);

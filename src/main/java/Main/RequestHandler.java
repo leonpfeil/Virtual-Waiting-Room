@@ -1,21 +1,24 @@
 package Main;
 
 import CommunicationModels.ClientMessage;
+import CommunicationModels.ErrorMessage;
 import CommunicationModels.QueueTicket.ClientQueueTicket;
 import CommunicationModels.QueueTicket.QueueTicket;
 import CommunicationModels.QueueTicket.SupervisorLoginStatus;
 import InternalModels.Queue;
 import InternalModels.QueueItem;
+import InternalModels.SupervisorQueue;
+import InternalModels.SupervisorQueueItem;
 import InternalModels.SupervisorState.Status;
 import com.google.gson.Gson;
 
 public class RequestHandler {
     private Queue clientQueue;
-    private Queue supervisorQueue;
+    private SupervisorQueue supervisorQueue;
     Broadcasts broadcast;
     private Gson gson = new Gson();
 
-    public RequestHandler(Broadcasts broadcast,Queue clientQueue, Queue supervisorQueue) {
+    public RequestHandler(Broadcasts broadcast,Queue clientQueue, SupervisorQueue supervisorQueue) {
         this.clientQueue = clientQueue;
         this.supervisorQueue = supervisorQueue;
         this.broadcast = broadcast;
@@ -43,7 +46,11 @@ public class RequestHandler {
 
         if (message.getEnterQueue()) {
 
-            joinQueue(message, queue);
+            if(!joinQueue(message, queue))
+            {
+                ErrorMessage error = new ErrorMessage("Invalid name","The chosen name is invalid");
+                return gson.toJson(error);
+            }
 
             if(message.isSupervisor()) //supervisor get a ticket with just their name. Technically redundant information but the client needs it for synchronisation
             {
@@ -72,7 +79,19 @@ public class RequestHandler {
         return replyString;
     }
 
-    void joinQueue(ClientMessage message, Queue queue) {
+    /**
+     * Adds either a new user or a new client for that corresponding user to the queue
+     * @param message
+     * @param queue
+     * @return false if the name is invalid, otherwise true
+     */
+    boolean joinQueue(ClientMessage message, Queue queue) {
+        //First check for invalid name
+        if(message.getName().equals("queue") || message.getName().equals("supervisors") || message.getName().equals("supervisorBroadcast"))
+        {
+            return false;
+        }
+
         if (!queue.isNameInQueue(message.getName())) {
             //If client wants to join and isnt already in the queue (via another client) add them to the list
             queue.addNewUserToQueue(message.getName(), message.getClientID(), queue);
@@ -86,6 +105,7 @@ public class RequestHandler {
             queue.addIDToExistingUser(message.getName(), message.getClientID());
 
         }
+        return true;
     }
 
 
@@ -119,23 +139,24 @@ public class RequestHandler {
     //Therefor its assumed that if it is not pending it has to be available
     private Status processStatusChange(ClientMessage message)
     {
+        SupervisorQueueItem queueItem = ((SupervisorQueueItem)supervisorQueue.getQueueItems());
         if(message.getStatus() == Status.pending)
         {
-            supervisorQueue.getQueueItems().get(message.getName()).setStatus(Status.pending);
+            queueItem.setStatus(Status.pending);
             return Status.pending;
         }
         else if(!clientQueue.getPositionInQueue().isEmpty()) //if there are clients waiting in queue immediately send them to supervisor and set occupied
         {
             QueueItem acceptedClient = clientQueue.acceptClient();
             broadcast.publishSupervisorMessage(acceptedClient.getName(), message.getName(),message.getOptionalMessage());
-            supervisorQueue.getQueueItems().get(message.getName()).setStatus(Status.occupied);
-            supervisorQueue.getQueueItems().get(message.getName()).setClient(acceptedClient);
+            queueItem.setStatus(Status.occupied);
+            queueItem.setClient(acceptedClient);
             return Status.occupied;
         }
         else
         {
-            supervisorQueue.getQueueItems().get(message.getName()).setStatus(Status.available);
-            supervisorQueue.getQueueItems().get(message.getName()).setSupervisorMessage(message.getOptionalMessage());
+            ((SupervisorQueueItem)supervisorQueue.getQueueItems().get(message.getName())).setStatus(Status.available);
+            queueItem.setSupervisorMessage(message.getOptionalMessage());
             return Status.available;
         }
     }
@@ -144,10 +165,10 @@ public class RequestHandler {
     {
         clientQueue.acceptClient(clientName);
         String supervisorName = supervisorQueue.removeSupervisorFromAvailable();
-        QueueItem supervisorItem = supervisorQueue.getQueueItems().get(supervisorName);
+        SupervisorQueueItem supervisorItem = (SupervisorQueueItem) supervisorQueue.getQueueItems().get(supervisorName);
 
         broadcast.publishSupervisorMessage(clientName,supervisorName,supervisorItem.getSupervisorMessage());
-        supervisorQueue.getQueueItems().get(supervisorName).setStatus(Status.occupied);
+        ((SupervisorQueueItem)supervisorQueue.getQueueItems().get(supervisorName)).setStatus(Status.occupied);
 
     }
 

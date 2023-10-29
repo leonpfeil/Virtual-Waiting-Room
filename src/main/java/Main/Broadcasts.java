@@ -39,7 +39,10 @@ class Broadcasts {
             topic = "queue";
         }
 
+
+
         String arrayAsJSON = gson.toJson(ticketArray);
+        System.out.println("The Stuff");
         System.out.println(arrayAsJSON);
 
         publisher.sendMore(topic);

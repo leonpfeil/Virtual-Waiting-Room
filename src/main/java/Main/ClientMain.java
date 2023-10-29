@@ -8,7 +8,7 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
 public class ClientMain {
-
+    // test client implementation, ignore please
     public static void main(String[] args) throws InterruptedException {
         ZContext context = new ZContext();
         ZMQ.Socket subscriber = context.createSocket(SocketType.SUB);

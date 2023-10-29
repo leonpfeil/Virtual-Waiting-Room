@@ -41,27 +41,6 @@ public class ServerMain {
                 //Handle incoming queue join requests
                 //or Heartbeats
 
-
-
-                /*reply.monitor("tcp://*:5556",ZMQ.EVENT_CONNECTED);
-
-                new Thread(() -> {
-                    ZMQ.Socket monitorSocket = context.createSocket(ZMQ.PAIR);
-                    monitorSocket.connect("inproc://monitor.rep");
-
-                    while (!Thread.currentThread().isInterrupted()) {
-                        byte[] event = monitorSocket.recv();
-                        int eventCode = ZMQ.
-
-                        if (eventCode == ZMQ.EVENT_CONNECTED) {
-                            System.out.println("A new connection was established.");
-                            // Add your handling code here
-                        }
-                    }
-
-                    monitorSocket.close();
-                }).start();*/
-
                 String incomingRequestString = reply.recvStr(0);
                 if (!incomingRequestString.isEmpty()) {
                     String replyString = requestHandler.handleRequest(incomingRequestString);
@@ -76,14 +55,15 @@ public class ServerMain {
 
                 //Inform clients of changes in queue
                 if (clientQueue.isQueueChanged()) {
-                    System.out.println("client queue has changed, broadcasting changes");
+                    System.out.println("client queue has changed");
                     broadcast.publishQueueChanges(false);
                 }
                 if(supervisorQueue.isQueueChanged())
                 {
-                    System.out.println("supervisor queue has changed, broadcasting changes");
+                    System.out.println("supervisor queue has changed");
                     broadcast.publishQueueChanges(true);
                 }
+
 
 
 

@@ -16,7 +16,8 @@ public class RequestHandler {
     Broadcasts broadcast;
     private Gson gson = new Gson();
 
-    int index = 1;
+    int clientIndex = 1;
+    int supervisorIndex = 1;
 
     public RequestHandler(Broadcasts broadcast,Queue clientQueue, Queue supervisorQueue) {
         this.clientQueue = clientQueue;
@@ -61,8 +62,14 @@ public class RequestHandler {
             else //Clients get a ticket with their position in the queue
             {
                 //create QueueTicket item for the response
-
-                replyTicket = new ClientQueueTicket(queue.getQueueItems().get(message.getName()).getIndex(), message.getName());
+                try
+                {
+                    replyTicket = new ClientQueueTicket(queue.getQueueItems().get(message.getName()).getIndex(), message.getName());
+                }
+                catch (Exception e)
+                {
+                    replyTicket = new ClientQueueTicket(clientIndex - 1, message.getName());
+                }
 
             }
             replyString = gson.toJson(replyTicket);
@@ -96,8 +103,18 @@ public class RequestHandler {
 
         if (!queue.isNameInQueue(message.getName())) {
             //If client wants to join and isnt already in the queue (via another client) add them to the list
-            queue.addNewUserToQueue(message.getName(), message.getClientID(), queue,index);
-            index++;
+            if(message.isSupervisor())
+            {
+                queue.addNewUserToQueue(message.getName(), message.getClientID(), queue,supervisorIndex);
+                supervisorIndex++;
+            }
+            else
+            {
+                queue.addNewUserToQueue(message.getName(), message.getClientID(), queue,clientIndex);
+                clientIndex++;
+            }
+
+
 
             //if the client is a user and there are available supervisor assign this client to a supervisor
             if(!message.isSupervisor() && !supervisorQueue.getAvailableSupervisor().isEmpty())

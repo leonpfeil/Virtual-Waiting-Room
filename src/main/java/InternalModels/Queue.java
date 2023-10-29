@@ -3,10 +3,7 @@ package InternalModels;
 import CommunicationModels.QueueTicket.ClientQueueTicket;
 import CommunicationModels.QueueTicket.SupervisorQueueTicket;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Queue {
 
@@ -42,7 +39,8 @@ public class Queue {
         ClientQueueTicket[] ticketArray = new ClientQueueTicket[positionInQueue.size()];
         for(int i = 0; i < positionInQueue.size();i++)
         {
-            ticketArray[i] = new ClientQueueTicket(i,positionInQueue.get(i));
+            String name = positionInQueue.get(i);
+            ticketArray[i] = new ClientQueueTicket(queueItems.get(name).getIndex(),name);
         }
         return ticketArray;
     }
@@ -98,7 +96,7 @@ public class Queue {
         }
         catch (NullPointerException e)
         {
-            System.out.println(e.getMessage());
+            //System.out.println(e.getMessage());
         }
     }
 
